@@ -1,0 +1,190 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <style type="text/css">
+ 
+   td.num{
+    height: 60px;
+    width: 60px;
+    background-color: black;
+   }
+ 
+   td:active {
+    background-color: red;
+   }
+ 
+   .aperation {
+    background-color: rgb(245, 146, 62);
+    color: white;
+   }
+ 
+   #ape {
+    background-color: wheat;
+    color: #000000;
+   }
+  </style>
+<script>
+var connected = false;
+var services_discovered = false;
+var selected_device;
+var connected_server;
+function setConnectedStatus(status) 
+{ connected = status;
+document.getElementById('status_connected').innerHTML = status; 
+if (status == true) {
+document.getElementById('btn_scan').innerHTML = "Disconnect";
+} else {
+document.getElementById('btn_scan').innerHTML = "Discover Devices";
+}
+}
+function setDiscoveryStatus(status) { services_discovered = status;
+document.getElementById('status_discovered').
+innerHTML = status;
+}
+function discoverDevicesOrDisconnect() 
+{ console.log("discoverDevicesOrDisconnect"); 
+if (!connected) {
+discoverDevices();
+} else {
+// TODO disconnect from the current device
+}
+}
+function discoverDevices() { 
+console.log("discoverDevices");
+var options = {
+filters: [{ namePrefix: 'BBC' }],
+//optionalServices: [DEVICE_INFORMATION_SERVICE, 
+//ACCELEROMETER_SERVICE, LED_SERVICE]
+}
+navigator.bluetooth.requestDevice(options)
+.then(device => {
+console.log('> Name:		' + device.name);
+console.log('> Id:			' + device.id); 
+console.log('> Connected:	' + device.gatt.connected); 
+selected_device = device;
+console.log(selected_device);
+connect();
+})
+.catch(error => {
+alert('ERROR: ' + error); console.log('ERROR: ' + error);
+});
+}
+function readModelNumber() {
+console.log("readModelNumber");
+}
+function randomLEDs() {
+console.log("randomLEDs");
+}
+function toggleAccelerometerNotifications() {
+console.log("toggleAccelerometerNotifications");
+}
+function connect() {
+if (connected == false){ 
+console.log("connecting"); 
+selected_device.gatt.connect().then(
+function (server){
+console.log("Connected to " + server.device.id); 
+console.log("connected=" + server.connected); 
+setConnectedStatus(true);
+connected_server = server;
+selected_device.addEventListener
+(	'gattserverdisconnected',
+onDisconnected);
+},
+function (error) {
+console.log("ERROR: could not connect - " + error); 
+alert("ERROR: could not connect - " + error); 
+setConnectedStatus(false);
+});
+}
+}
+
+function onDisconnected() 
+{ console.log("onDisconnected"); 
+resetUI();
+}
+
+function resetUI() {
+setConnectedStatus(false); 
+setDiscoveryStatus(false);
+document.getElementById('model_number').innerHTML = ""; 
+document.getElementById('accelerometer_data').innerHTML = "";
+}
+</script>
+</head>
+<body>
+<h1>Web Bluetooth</h1>
+<h2>Status</h2>
+<table border="1">
+<tr>
+<td>
+<b>Connected</b>
+</td>
+<td>
+<b>Service Discovery Completed</b>
+</td>
+<td>
+<b>Notifications</b>
+</td>
+</tr>
+<tr>
+<td id="status_connected">false</td>
+<td id="status_discovered">false</td>
+<td id="status_notifications">false</td>
+</tr>
+</table>
+<h2>Device Discovery and Connection</h2>
+<button id="btn_scan" onClick=" discoverDevicesOrDisconnect()">Discover Devices</button>
+<hr>
+<h2>Reading and Writing</h2>
+<h3>Read Characteristic - Model Number</h3>
+<button id="btn_read" onClick="readModelNumber()">Read Model 
+Number</button>
+<div id="model_number"></div>
+<h3>Write Characteristic - Randomise Lights</h3>
+<button id="btn_write" onClick="randomLEDs()">Randomise LEDs</button>
+<hr>
+<h2>led</h2>
+<div id="accelerometer_data"></div>
+<div id="">
+   <table width="450" border="1" class="style1">
+	 <tr>
+     <td  class="num">25</td>
+     <td  class="num">24</td>
+     <td  class="num">23</td>
+	 <td  class="num">22</td>
+	 <td  class="num">21</td>
+    </tr>
+	 <tr>
+     <td class="num">20</td>
+     <td class="num">19</td>
+     <td class="num">18</td>
+	 <td class="num">17</td>
+	 <td class="num">16</td>
+    </tr>
+    <tr>
+     <td class="num">15</td>
+     <td class="num">14</td>
+     <td class="num">13</td>
+	 <td class="num">12</td>
+	 <td class="num">11</td>
+    </tr>
+    <tr>
+     <td class="num">10</td>
+     <td class="num">9</td>
+     <td class="num">8</td>
+	 <td class="num">7</td>
+	 <td class="num">6</td>
+    </tr>
+    <tr>
+     <td class="num">5</td>
+     <td class="num">4</td>
+     <td class="num">3</td>
+	 <td class="num">2</td>
+	 <td class="num">1</td>
+    </tr>
+ </table>
+  </div>
+</body>
+</html>
